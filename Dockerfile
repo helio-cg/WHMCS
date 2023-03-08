@@ -24,6 +24,7 @@ RUN apt-get update && apt-get install -y \
     vim \
     unzip \
     git \
+    soap \
     curl
 
 # Install extensions

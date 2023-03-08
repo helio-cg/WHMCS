@@ -1,0 +1,52 @@
+version: "2"
+
+services:
+  mysql:
+    image: mysql/mysql-server:5.7
+    hostname: mysql
+    #restart: always
+    networks:
+      - whmcs
+    environment:
+      MYSQL_DATABASE: "whmcs"
+      MYSQL_USER: "root"
+      MYSQL_ROOT_PASSWORD: "secret"
+      MYSQL_ROOT_HOST: "%"
+    ports:
+      - 3306:3306
+
+  whmcs:
+    image: fauzie/docker-whmcs:latest
+    hostname: whmcs
+    networks:
+      - whmcs
+    #restart: always
+    depends_on:
+      - mysql
+    environment:
+      WORKER_PROCESSES: 20
+      VIRTUAL_HOST: localhost
+      APP_PASSWORD: userapppassword
+      WHMCS_SERVER_IP: localhost
+      HTTPS: "off"
+    ports:
+      - 80:80
+      - 2222:2222
+    volumes:
+      - ./whmcs:/var/www/whmcs
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    links:
+      - mysql
+    ports:
+      - 8080:8080
+    environment:
+      MYSQL_USERNAME: root
+      MYSQL_ROOT_PASSWORD: secret
+    networks:
+      - whmcs
+
+networks:
+  whmcs:
+    driver: bridge
